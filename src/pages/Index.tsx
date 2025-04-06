@@ -4,12 +4,14 @@ import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import ChatBot from "@/components/ChatBot";
 import MovieCard from "@/components/MovieCard";
-import { searchMovies, Movie } from "@/services/movieService";
+import { searchMovies, Movie, getAllGenres, getMoviesByGenre } from "@/services/movieService";
 import { Film } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const genres = getAllGenres();
 
   const handleSearch = (query: string) => {
     const results = searchMovies(query);
@@ -54,7 +56,7 @@ const Index = () => {
           </div>
         )}
 
-        {/* Initial State - No Search Yet */}
+        {/* Movies by Genre */}
         {!hasSearched && (
           <div className="mt-12">
             <div className="text-center mb-12">
@@ -73,6 +75,30 @@ const Index = () => {
                   </p>
                 </div>
               </div>
+            </div>
+            
+            <div className="space-y-12">
+              {genres.map((genre) => {
+                const genreMovies = getMoviesByGenre(genre);
+                return (
+                  <div key={genre} className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-2xl font-bold">{genre} Movies</h2>
+                    </div>
+                    <Carousel className="mx-auto">
+                      <CarouselContent>
+                        {genreMovies.map((movie) => (
+                          <CarouselItem key={movie.id} className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                            <MovieCard movie={movie} />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="-left-4 opacity-70 hover:opacity-100" />
+                      <CarouselNext className="-right-4 opacity-70 hover:opacity-100" />
+                    </Carousel>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
