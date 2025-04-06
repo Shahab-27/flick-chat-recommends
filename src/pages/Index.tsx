@@ -29,7 +29,7 @@ const Index = () => {
           <div className="flex items-center justify-center mb-6">
             <Film className="h-12 w-12 text-cinema-accent mr-2" />
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-              FlickChat Recommends
+             Ai-movie-recommender
             </h1>
           </div>
           <p className="text-lg text-gray-300 mb-12 max-w-2xl">
@@ -60,7 +60,7 @@ const Index = () => {
         {!hasSearched && (
           <div className="mt-12">
             <div className="text-center mb-12">
-              <h2 className="text-2xl font-bold mb-4">How to use FlickChat</h2>
+              <h2 className="text-2xl font-bold mb-4">How to use Movie Recommender</h2>
               <div className="max-w-3xl mx-auto grid md:grid-cols-2 gap-8">
                 <div className="bg-card p-6 rounded-lg">
                   <h3 className="text-xl font-semibold mb-3">Search for Movies</h3>
