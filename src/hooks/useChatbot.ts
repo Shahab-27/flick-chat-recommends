@@ -34,7 +34,8 @@ export const useChatbot = () => {
         return `https://www.youtube.com/watch?v=${data.items[0].id.videoId}`;
       }
       return null;
-    } catch {
+    } catch (error) {
+      console.error("Error fetching YouTube data:", error);
       return null;
     }
   };
@@ -53,163 +54,92 @@ export const useChatbot = () => {
     setIsTyping(true);
 
     setTimeout(() => {
-      const lower = message.toLowerCase();
-      const isMore = lower.includes("more") || lower.includes("next");
-
-      if (isMore) {
-        const prevBot = [...messages].reverse().find(
-          (m) => m.sender === "bot" && m.allMovies?.length
-        );
-        if (prevBot && prevBot.movieIndex !== undefined) {
-          const next = prevBot.allMovies.slice(prevBot.movieIndex, prevBot.movieIndex + 5);
-          const remaining = Math.max(0, prevBot.allMovies.length - (prevBot.movieIndex + 5));
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              content: `Here are ${next.length} more movies:${remaining > 0 ? ` (${remaining} more left)` : ""}`,
-              sender: "bot",
-              movies: next,
-              allMovies: prevBot.allMovies,
-              movieIndex: prevBot.movieIndex + 5,
-            },
-          ]);
-          setIsTyping(false);
-          return;
-        }
-      }
-
-      const isTrailerRequest = lower.includes("trailer") || lower.includes("watch") || lower.includes("preview");
-      if (isTrailerRequest) {
-        const match = message.match(/trailer\s+(?:for|of)?\s+(.+?)(?:\s+movie)?$/i) ||
-                      message.match(/i want trailer of (.+)/i) ||
-                      message.match(/watch\s+(.+?)(?:\s+trailer)?/i);
-        const movieTitle = match?.[1]?.trim();
-        if (movieTitle) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              content: `Looking for trailer of "${movieTitle}"...`,
-              sender: "bot",
-            },
-          ]);
-          searchMovieTrailer(movieTitle).then((url) => {
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: Date.now().toString(),
-                content: url
-                  ? `Here's the trailer for "${movieTitle}": ${url}`
-                  : `Sorry, I couldn't find the trailer for "${movieTitle}".`,
-                sender: "bot",
-              },
-            ]);
-          });
-          setIsTyping(false);
-          return;
-        }
-      }
+      const lowercasedMessage = message.toLowerCase();
 
       const genres = ["comedy", "action", "drama", "romance", "thriller", "horror", "sci-fi", "adventure", "crime", "sport"];
-      const matchedGenre = genres.find((g) => lower.includes(g));
-      const isRecommend = lower.includes("suggest") || lower.includes("recommend") || lower.includes("show me") || lower.includes("some");
+      const matchedGenre = genres.find((genre) => lowercasedMessage.includes(genre));
+      const isHollywood = lowercasedMessage.includes("hollywood");
+      const isBollywood = lowercasedMessage.includes("bollywood");
+      const isAskingForRecommendations =
+        lowercasedMessage.includes("suggest") ||
+        lowercasedMessage.includes("recommend") ||
+        lowercasedMessage.includes("show me");
 
-      if (matchedGenre && isRecommend) {
-        let movies = getMoviesByGenre(matchedGenre);
-        if (lower.includes("bollywood")) {
-          movies = movies.filter((m) => m.industry === "Bollywood");
-        } else if (lower.includes("hollywood")) {
-          movies = movies.filter((m) => m.industry === "Hollywood");
-        }
+      const isAskingForTrailer =
+        lowercasedMessage.includes("trailer") ||
+        lowercasedMessage.includes("watch") ||
+        lowercasedMessage.includes("preview");
 
-        if (movies.length) {
-          const firstFive = movies.slice(0, 5);
-          const remaining = Math.max(0, movies.length - 5);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              content: `Here are some ${matchedGenre} movies${lower.includes("bollywood") ? " from Bollywood" : lower.includes("hollywood") ? " from Hollywood" : ""}:${remaining > 0 ? ` (${remaining} more available, ask for "more")` : ""}`,
+      let botMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm not sure what you're looking for. Try asking for movie recommendations by genre, like 'Suggest some comedy movies' or 'Recommend action films'.",
+        sender: "bot",
+      };
+
+      // Trailer logic
+      if (isAskingForTrailer) {
+        const movieTitleMatch =
+          message.match(/trailer\s+(?:for|of)?\s+(.+?)(?:\s+movie)?$/i) ||
+          message.match(/watch\s+(.+?)(?:\s+trailer)$/i) ||
+          message.match(/(?:trailer\s+)?(.+?)(?:\s+trailer)?$/i);
+
+        if (movieTitleMatch && movieTitleMatch[1]) {
+          const movieTitle = movieTitleMatch[1].trim();
+
+          botMessage = {
+            id: (Date.now() + 1).toString(),
+            content: `I'm looking for the trailer of "${movieTitle}". Please wait a moment...`,
+            sender: "bot",
+          };
+
+          setMessages((prev) => [...prev, botMessage]);
+
+          searchMovieTrailer(movieTitle).then((trailerUrl) => {
+            const trailerMessage: ChatMessage = {
+              id: (Date.now() + 2).toString(),
+              content: trailerUrl
+                ? `Here's the trailer for "${movieTitle}": ${trailerUrl}`
+                : `I couldn't find a trailer for "${movieTitle}". Please try another movie.`,
               sender: "bot",
-              movies: firstFive,
-              allMovies: movies,
-              movieIndex: 5,
-            },
-          ]);
+            };
+            setMessages((prev) => [...prev, trailerMessage]);
+          });
+
+          setIsTyping(false);
+          return;
+        }
+      }
+
+      // Genre or Industry Recommendation
+      let movies: Movie[] | undefined;
+
+      if (matchedGenre && isAskingForRecommendations) {
+        movies = getMoviesByGenre(matchedGenre);
+
+        if (movies.length > 0) {
+          if (isHollywood) movies = movies.filter((m) => m.industry === "Hollywood");
+          else if (isBollywood) movies = movies.filter((m) => m.industry === "Bollywood");
+
+          const allMovies = [...movies];
+          const displayMovies = movies.slice(0, 5);
+          const remainingCount = Math.max(0, allMovies.length - 5);
+
+          botMessage = {
+            id: (Date.now() + 1).toString(),
+            content: `Here are some ${matchedGenre} movies${isBollywood ? " from Bollywood" : isHollywood ? " from Hollywood" : ""} for you:${
+              remainingCount > 0 ? ` (${remainingCount} more available, just ask for "more")` : ""
+            }`,
+            sender: "bot",
+            movies: displayMovies,
+            allMovies,
+            movieIndex: 5,
+          };
         } else {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              content: `I couldn't find any ${matchedGenre} movies.`,
-              sender: "bot",
-            },
-          ]);
+          botMessage.content = `I couldn't find any ${matchedGenre} movies in my database.`;
         }
-
-        setIsTyping(false);
-        return;
       }
 
-      if (lower.includes("hollywood") && isRecommend) {
-        const movies = getMoviesByIndustry("Hollywood");
-        if (movies.length) {
-          const firstFive = movies.slice(0, 5);
-          const remaining = Math.max(0, movies.length - 5);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              content: `Here are some Hollywood movies:${remaining > 0 ? ` (${remaining} more available)` : ""}`,
-              sender: "bot",
-              movies: firstFive,
-              allMovies: movies,
-              movieIndex: 5,
-            },
-          ]);
-        }
-        setIsTyping(false);
-        return;
-      }
-
-      if (lower.includes("bollywood") && isRecommend) {
-        const movies = getMoviesByIndustry("Bollywood");
-        if (movies.length) {
-          const firstFive = movies.slice(0, 5);
-          const remaining = Math.max(0, movies.length - 5);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              content: `Here are some Bollywood movies:${remaining > 0 ? ` (${remaining} more available)` : ""}`,
-              sender: "bot",
-              movies: firstFive,
-              allMovies: movies,
-              movieIndex: 5,
-            },
-          ]);
-        }
-        setIsTyping(false);
-        return;
-      }
-
-      let fallback = "I'm not sure what you're looking for. Try asking for movie recommendations by genre or ask for a trailer.";
-      if (lower.includes("hello") || lower.includes("hi")) {
-        fallback = "Hello! I'm your movie assistant. Ask me for movie recommendations or trailers!";
-      } else if (lower.includes("thank")) {
-        fallback = "You're welcome! Ask me anything about movies!";
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          content: fallback,
-          sender: "bot",
-        },
-      ]);
-
+      setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     }, 1000);
   };
