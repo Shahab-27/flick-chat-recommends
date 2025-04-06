@@ -38,6 +38,13 @@ const Chatbot = () => {
     });
   };
 
+  const handleAskForMore = () => {
+    sendMessage("Show me more movies");
+    toast({
+      description: "Asking for more movies...",
+    });
+  };
+
   // Auto scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -107,7 +114,7 @@ const Chatbot = () => {
                 {/* Render movies if available */}
                 {message.movies && message.movies.length > 0 && (
                   <div className="grid grid-cols-1 gap-3 mt-3">
-                    {message.movies.slice(0, 3).map((movie) => (
+                    {message.movies.map((movie) => (
                       <div 
                         key={movie.id} 
                         className="bg-black/30 rounded-lg p-2 flex gap-3 items-center"
@@ -138,10 +145,15 @@ const Chatbot = () => {
                         </div>
                       </div>
                     ))}
-                    {message.movies.length > 3 && (
-                      <p className="text-xs text-center mt-1 text-gray-400">
-                        +{message.movies.length - 3} more movies
-                      </p>
+                    {message.allMovies && message.movieIndex && (message.allMovies.length > message.movieIndex) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleAskForMore}
+                        className="mt-2 w-full bg-primary/20 hover:bg-primary/40"
+                      >
+                        Show more movies
+                      </Button>
                     )}
                   </div>
                 )}

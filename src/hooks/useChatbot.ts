@@ -7,6 +7,8 @@ export type ChatMessage = {
   content: string;
   sender: "user" | "bot";
   movies?: Movie[];
+  allMovies?: Movie[]; // Store all matched movies
+  movieIndex?: number; // Track how many movies have been shown
 };
 
 export const useChatbot = () => {
@@ -34,8 +36,50 @@ export const useChatbot = () => {
     setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
 
+    // Check if the user is asking for more movies from a previous recommendation
+    const lowercasedMessage = message.toLowerCase();
+    const isAskingForMore = lowercasedMessage.includes("more") || 
+                           lowercasedMessage.includes("show more") || 
+                           lowercasedMessage.includes("additional") ||
+                           lowercasedMessage.includes("next");
+    
     // Process the message and generate a response
     setTimeout(() => {
+      // Handle requests for more movies
+      if (isAskingForMore) {
+        const prevBotMessages = [...messages].reverse().find(
+          msg => msg.sender === "bot" && msg.allMovies && msg.allMovies.length > 0
+        );
+
+        if (prevBotMessages && prevBotMessages.allMovies && prevBotMessages.movieIndex !== undefined) {
+          const allMovies = prevBotMessages.allMovies;
+          const currentIndex = prevBotMessages.movieIndex;
+          const nextIndex = currentIndex + 5;
+          
+          // Check if there are more movies to show
+          if (currentIndex < allMovies.length) {
+            const nextMovies = allMovies.slice(currentIndex, nextIndex);
+            const remainingCount = Math.max(0, allMovies.length - nextIndex);
+            
+            const botMessage: ChatMessage = {
+              id: (Date.now() + 1).toString(),
+              content: `Here are ${nextMovies.length} more movies for you:${
+                remainingCount > 0 ? ` (${remainingCount} more available)` : ''
+              }`,
+              sender: "bot",
+              movies: nextMovies,
+              allMovies: allMovies,
+              movieIndex: nextIndex
+            };
+            
+            setMessages((prev) => [...prev, botMessage]);
+            setIsTyping(false);
+            return;
+          }
+        }
+      }
+      
+      // Regular recommendation processing
       const lowercasedMessage = message.toLowerCase();
       
       // Check if the message is asking for recommendations
@@ -72,11 +116,19 @@ export const useChatbot = () => {
             movies = movies.filter(movie => movie.industry === "Bollywood");
           }
 
+          const allMovies = [...movies]; // Store all matched movies
+          const displayMovies = movies.slice(0, 5); // Display only the first 5
+          const remainingCount = Math.max(0, allMovies.length - 5);
+
           botMessage = {
             id: (Date.now() + 1).toString(),
-            content: `Here are some ${matchedGenre} movies${isBollywood ? ' from Bollywood' : isHollywood ? ' from Hollywood' : ''} for you:`,
+            content: `Here are some ${matchedGenre} movies${isBollywood ? ' from Bollywood' : isHollywood ? ' from Hollywood' : ''} for you:${
+              remainingCount > 0 ? ` (${remainingCount} more available, just ask for "more")` : ''
+            }`,
             sender: "bot",
-            movies,
+            movies: displayMovies,
+            allMovies: allMovies,
+            movieIndex: 5
           };
         } else {
           botMessage.content = `I couldn't find any ${matchedGenre} movies in my database.`;
@@ -87,11 +139,19 @@ export const useChatbot = () => {
         movies = getMoviesByIndustry(industry);
 
         if (movies.length > 0) {
+          const allMovies = [...movies]; // Store all matched movies
+          const displayMovies = movies.slice(0, 5); // Display only the first 5
+          const remainingCount = Math.max(0, allMovies.length - 5);
+
           botMessage = {
             id: (Date.now() + 1).toString(),
-            content: `Here are some ${industry} movies for you:`,
+            content: `Here are some ${industry} movies for you:${
+              remainingCount > 0 ? ` (${remainingCount} more available, just ask for "more")` : ''
+            }`,
             sender: "bot",
-            movies,
+            movies: displayMovies,
+            allMovies: allMovies,
+            movieIndex: 5
           };
         } else {
           botMessage.content = `I couldn't find any ${industry} movies in my database.`;
