@@ -114,6 +114,108 @@ const movieDatabase: Movie[] = [
     rating: 8.1,
     industry: "Bollywood",
     description: "When Raj meets Simran in Europe, it isn't love at first sight but when Simran moves to India for an arranged marriage, love makes its presence felt."
+  },
+  // Adding more movies in romantic genre
+  {
+    id: "11",
+    title: "The Notebook",
+    year: 2004,
+    poster: "https://m.media-amazon.com/images/M/MV5BMTk3OTM5Njg5M15BMl5BanBnXkFtZTYwMzA0ODI3._V1_.jpg",
+    genre: ["Romance", "Drama"],
+    rating: 7.8,
+    industry: "Hollywood",
+    description: "A poor yet passionate young man falls in love with a rich young woman, giving her a sense of freedom, but they are soon separated because of their social differences."
+  },
+  {
+    id: "12",
+    title: "Pride & Prejudice",
+    year: 2005,
+    poster: "https://m.media-amazon.com/images/M/MV5BMTA1NDQ3NTcyOTNeQTJeQWpwZ15BbWU3MDEzMzQ3MDI@._V1_.jpg",
+    genre: ["Romance", "Drama"],
+    rating: 7.8,
+    industry: "Hollywood",
+    description: "Sparks fly when spirited Elizabeth Bennet meets single, rich, and proud Mr. Darcy. But Mr. Darcy reluctantly finds himself falling in love with a woman beneath his class."
+  },
+  {
+    id: "13",
+    title: "Jab We Met",
+    year: 2007,
+    poster: "https://m.media-amazon.com/images/M/MV5BYmQxNmU4ZjgtYzE5Mi00ZDlhLTlhOTctMzJkNjk2ZGUyZGEwXkEyXkFqcGdeQXVyMzUzMzgxNA@@._V1_.jpg",
+    genre: ["Romance", "Comedy"],
+    rating: 7.9,
+    industry: "Bollywood",
+    description: "A depressed businessman finds solace in the company of a free-spirited girl after they meet on a train and she changes his perspective on life."
+  },
+  {
+    id: "14",
+    title: "Yeh Jawaani Hai Deewani",
+    year: 2013,
+    poster: "https://m.media-amazon.com/images/M/MV5BODA4MjM2ODk4OF5BMl5BanBnXkFtZTcwNDgzODk1OQ@@._V1_.jpg",
+    genre: ["Romance", "Comedy", "Drama"],
+    rating: 7.2,
+    industry: "Bollywood",
+    description: "A love story between an introvert girl who finds happiness in small things and an extrovert boy who wants to travel the world and discover his passion."
+  },
+  // Adding more movies in sports genre
+  {
+    id: "15",
+    title: "Rocky",
+    year: 1976,
+    poster: "https://m.media-amazon.com/images/M/MV5BMTY5MDMzODUyOF5BMl5BanBnXkFtZTcwMTQ3NTMyNA@@._V1_.jpg",
+    genre: ["Sport", "Drama"],
+    rating: 8.1,
+    industry: "Hollywood",
+    description: "A small-time Philadelphia boxer gets a supremely rare chance to fight the world heavyweight champion in a bout in which he strives to go the distance for his self-respect."
+  },
+  {
+    id: "16",
+    title: "Chak De! India",
+    year: 2007,
+    poster: "https://m.media-amazon.com/images/M/MV5BY2Q2NDI1MjUtM2Q5ZS00MTFlLWJiYWEtNTZmODM5OTk2ZGVjXkEyXkFqcGdeQXVyNjQ2MjQ5NzM@._V1_.jpg",
+    genre: ["Sport", "Drama"],
+    rating: 8.2,
+    industry: "Bollywood",
+    description: "A disgraced former hockey player coaches the Indian women's national team to victory against all odds."
+  },
+  {
+    id: "17",
+    title: "Remember the Titans",
+    year: 2000,
+    poster: "https://m.media-amazon.com/images/M/MV5BYThkMzgxNjEtMzFiOC00MTI0LWI5MDItNDVmYjA4NzY5MDQ2L2ltYWdlL2ltYWdlXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg",
+    genre: ["Sport", "Drama", "Biography"],
+    rating: 7.8,
+    industry: "Hollywood",
+    description: "The true story of a newly appointed African-American coach and his high school team on their first season as a racially integrated unit."
+  },
+  {
+    id: "18",
+    title: "Bhaag Milkha Bhaag",
+    year: 2013,
+    poster: "https://m.media-amazon.com/images/M/MV5BMTY1Nzg4MjcwN15BMl5BanBnXkFtZTcwOTc1NTk1OQ@@._V1_.jpg",
+    genre: ["Sport", "Biography", "Drama"],
+    rating: 8.2,
+    industry: "Bollywood",
+    description: "The story of the Indian athlete Milkha Singh, who overcame the massacre of his family and the trauma of displacement during the India-Pakistan partition to become one of India's most iconic athletes."
+  },
+  {
+    id: "19",
+    title: "MS Dhoni: The Untold Story",
+    year: 2016,
+    poster: "https://m.media-amazon.com/images/M/MV5BZjAzZjZiMmQtMDZmOC00NjVmLTkyNTItOGI2Mzg4NTBhZTA1XkEyXkFqcGdeQXVyODE5NzE3OTE@._V1_.jpg",
+    genre: ["Sport", "Biography", "Drama"],
+    rating: 7.9,
+    industry: "Bollywood",
+    description: "The untold story of Mahendra Singh Dhoni's journey from ticket collector to legendary cricket captain of India."
+  },
+  {
+    id: "20",
+    title: "Dangal",
+    year: 2016,
+    poster: "https://m.media-amazon.com/images/M/MV5BMTQ4MzQzMzM2Nl5BMl5BanBnXkFtZTgwMTQ1NzU3MDI@._V1_.jpg",
+    genre: ["Sport", "Biography", "Drama"],
+    rating: 8.4,
+    industry: "Bollywood",
+    description: "Former wrestler Mahavir Singh Phogat trains his daughters Geeta and Babita to become India's first world-class female wrestlers."
   }
 ];
 

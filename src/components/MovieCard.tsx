@@ -1,23 +1,24 @@
 
 import { Star } from "lucide-react";
 import { Movie } from "@/services/movieService";
+import { useState } from "react";
 
 interface MovieCardProps {
   movie: Movie;
 }
 
 const MovieCard = ({ movie }: MovieCardProps) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div className="cinema-card h-full flex flex-col animate-fade-in-up">
       <div className="relative aspect-[2/3] overflow-hidden">
         <img 
-          src={movie.poster} 
+          src={imageError ? "/placeholder.svg" : movie.poster} 
           alt={`${movie.title} poster`}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = "/placeholder.svg";
-          }}
+          onError={() => setImageError(true)}
+          loading="lazy"
         />
         <div className="absolute top-2 right-2 bg-black/70 text-cinema-gold rounded-full p-1 px-2 flex items-center text-sm font-medium">
           <Star className="h-3 w-3 mr-1 fill-cinema-gold" />
