@@ -11,6 +11,9 @@ export type ChatMessage = {
   movieIndex?: number; // Track how many movies have been shown
 };
 
+// YouTube API Key
+const YOUTUBE_API_KEY = "AIzaSyCLUxmvaVJHBTd7WW58J9FwD8db-YwlmMc";
+
 export const useChatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -20,6 +23,27 @@ export const useChatbot = () => {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+
+  // Function to search for movie trailers using YouTube API
+  const searchMovieTrailer = async (movieTitle: string): Promise<string | null> => {
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(
+          movieTitle + " official trailer"
+        )}&key=${YOUTUBE_API_KEY}`
+      );
+      
+      const data = await response.json();
+      
+      if (data.items && data.items.length > 0) {
+        return `https://www.youtube.com/watch?v=${data.items[0].id.videoId}`;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching YouTube data:", error);
+      return null;
+    }
+  };
 
   // Function to handle user messages and generate responses
   const sendMessage = (message: string) => {
@@ -82,6 +106,11 @@ export const useChatbot = () => {
       // Regular recommendation processing
       const lowercasedMessage = message.toLowerCase();
       
+      // Check if asking for movie trailer
+      const isAskingForTrailer = lowercasedMessage.includes("trailer") || 
+                                lowercasedMessage.includes("watch") || 
+                                lowercasedMessage.includes("preview");
+      
       // Check if the message is asking for recommendations
       const isAskingForRecommendations = 
         lowercasedMessage.includes("suggest") || 
@@ -93,6 +122,54 @@ export const useChatbot = () => {
         content: "I'm not sure what you're looking for. Try asking for movie recommendations by genre, like 'Suggest some comedy movies' or 'Recommend action films'.",
         sender: "bot",
       };
+
+      // Handle trailer requests
+      if (isAskingForTrailer) {
+        const movieTitleMatch = message.match(/trailer\s+(?:for|of)?\s+(.+?)(?:\s+movie)?$/i) || 
+                               message.match(/watch\s+(.+?)(?:\s+trailer)$/i) ||
+                               message.match(/(.+?)(?:\s+trailer)/i);
+        
+        if (movieTitleMatch && movieTitleMatch[1]) {
+          const movieTitle = movieTitleMatch[1].trim();
+          
+          botMessage = {
+            id: (Date.now() + 1).toString(),
+            content: `I'm looking for the trailer of "${movieTitle}". Please wait a moment...`,
+            sender: "bot",
+          };
+          
+          setMessages((prev) => [...prev, botMessage]);
+          
+          // Search for trailer asynchronously
+          searchMovieTrailer(movieTitle).then(trailerUrl => {
+            if (trailerUrl) {
+              const trailerMessage: ChatMessage = {
+                id: (Date.now() + 2).toString(),
+                content: `Here's the trailer for "${movieTitle}": ${trailerUrl}`,
+                sender: "bot",
+              };
+              setMessages((prev) => [...prev, trailerMessage]);
+            } else {
+              const notFoundMessage: ChatMessage = {
+                id: (Date.now() + 2).toString(),
+                content: `I couldn't find a trailer for "${movieTitle}". Please try another movie.`,
+                sender: "bot",
+              };
+              setMessages((prev) => [...prev, notFoundMessage]);
+            }
+          }).catch(() => {
+            const errorMessage: ChatMessage = {
+              id: (Date.now() + 2).toString(),
+              content: `Sorry, I encountered an issue while searching for the trailer. Please try again later.`,
+              sender: "bot",
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+          });
+          
+          setIsTyping(false);
+          return;
+        }
+      }
 
       // Parse the message to extract genre/industry information
       let movies: Movie[] | undefined;
@@ -157,9 +234,9 @@ export const useChatbot = () => {
           botMessage.content = `I couldn't find any ${industry} movies in my database.`;
         }
       } else if (lowercasedMessage.includes("hello") || lowercasedMessage.includes("hi")) {
-        botMessage.content = "Hello! I'm your movie assistant. How can I help you today? You can ask me for movie recommendations by genre or industry!";
+        botMessage.content = "Hello! I'm your movie assistant. How can I help you today? You can ask me for movie recommendations by genre or industry, or even ask for movie trailers!";
       } else if (lowercasedMessage.includes("thank")) {
-        botMessage.content = "You're welcome! Feel free to ask if you need more movie recommendations.";
+        botMessage.content = "You're welcome! Feel free to ask if you need more movie recommendations or want to see a movie trailer.";
       }
 
       setMessages((prev) => [...prev, botMessage]);
