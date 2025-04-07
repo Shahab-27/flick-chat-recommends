@@ -20,7 +20,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cinema-pattern flex flex-col">
+    <div className="min-h-screen bg-cinema-pattern flex flex-col relative pb-16">
       <Navbar />
       
       <main className="cinema-container pb-20 flex-grow">
@@ -104,8 +104,8 @@ const Index = () => {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto py-6 border-t border-gray-800">
+      {/* Fixed Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 py-3 border-t border-gray-800 bg-cinema-dark bg-opacity-90 backdrop-filter backdrop-blur-sm z-10">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-400">Made BY Shahab, Harsh and Aadish</p>
         </div>
