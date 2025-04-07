@@ -20,10 +20,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cinema-pattern">
+    <div className="min-h-screen bg-cinema-pattern flex flex-col">
       <Navbar />
       
-      <main className="cinema-container pb-20">
+      <main className="cinema-container pb-20 flex-grow">
         {/* Hero Section */}
         <div className="py-16 flex flex-col items-center text-center">
           <div className="flex items-center justify-center mb-6">
@@ -103,6 +103,13 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-auto py-6 border-t border-gray-800">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-400">Made BY Shahab, Harsh and Aadish</p>
+        </div>
+      </footer>
 
       {/* Chatbot Component */}
       <ChatBot />

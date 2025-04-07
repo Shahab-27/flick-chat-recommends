@@ -2,6 +2,7 @@
 import { Star } from "lucide-react";
 import { Movie } from "@/services/movieService";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MovieCardProps {
   movie: Movie;
@@ -9,15 +10,25 @@ interface MovieCardProps {
 
 const MovieCard = ({ movie }: MovieCardProps) => {
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  // Use a default image if the movie poster is missing or invalid
+  const defaultImage = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80";
+  
+  const posterUrl = movie.poster || defaultImage;
 
   return (
-    <div className="cinema-card h-full flex flex-col animate-fade-in-up">
+    <div className="cinema-card h-full flex flex-col animate-fade-in-up bg-card rounded-lg overflow-hidden shadow-md">
       <div className="relative aspect-[2/3] overflow-hidden">
+        {imageLoading && (
+          <Skeleton className="absolute inset-0 w-full h-full" />
+        )}
         <img 
-          src={imageError ? "/placeholder.svg" : movie.poster} 
+          src={imageError ? defaultImage : posterUrl} 
           alt={`${movie.title} poster`}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
           onError={() => setImageError(true)}
+          onLoad={() => setImageLoading(false)}
           loading="lazy"
         />
         <div className="absolute top-2 right-2 bg-black/70 text-cinema-gold rounded-full p-1 px-2 flex items-center text-sm font-medium">
