@@ -115,24 +115,26 @@ const MovieCard = ({ movie }: MovieCardProps) => {
                 </div>
               </div>
               
-              {movie.director && (
+              {/* Only render if these properties exist in the movie object */}
+              {/* We're using optional chaining to check if these properties exist */}
+              {(movie as any).director && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2">Director</h3>
-                  <p className="text-gray-300">{movie.director}</p>
+                  <p className="text-gray-300">{(movie as any).director}</p>
                 </div>
               )}
               
-              {movie.cast && (
+              {(movie as any).cast && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2">Cast</h3>
-                  <p className="text-gray-300">{movie.cast}</p>
+                  <p className="text-gray-300">{(movie as any).cast}</p>
                 </div>
               )}
               
-              {movie.language && (
+              {(movie as any).language && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2">Language</h3>
-                  <p className="text-gray-300">{movie.language}</p>
+                  <p className="text-gray-300">{(movie as any).language}</p>
                 </div>
               )}
             </div>
